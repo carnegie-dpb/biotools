@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 # Counts the bases for each sequence in a FASTA file and spits them out along with the sequence record id, tab separated.
 #
