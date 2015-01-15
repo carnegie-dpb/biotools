@@ -45,14 +45,10 @@ def main():
             extras = extras + 'pin='+chunks[13]+';'
             extras = extras + 'mdist='+chunks[14]+';'
             extras = extras + 'min='+chunks[15]+';'
-        if chr1!='.' and start1!=end1:
+        if chr1!='.':
             print chr1+'\t'+source+'\t'+feature+'\t'+str(start1)+'\t'+str(end1)+'\t'+score+'\t'+strand1+'\t'+'.'+'\t'+'Name='+name+';assembly_name='+assembly+';'+extras
-            if start1>end1:
-                print "WHOOPS: start1>end1!"
-        if chr2!='.' and start2!=end2:
+        if chr2!='.':
             print chr2+'\t'+source+'\t'+feature+'\t'+str(start2)+'\t'+str(end2)+'\t'+score+'\t'+strand2+'\t'+'.'+'\t'+'Name='+name+';assembly_name='+assembly+';'+extras
-            if start2>end2:
-                print "WHOOPS: start2>end2!"
     f.close()
 
 if __name__ == '__main__':
