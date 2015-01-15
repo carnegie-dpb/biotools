@@ -4,12 +4,7 @@
 #
 # input: db name, feature tag (e.g. mRNA:ensembl)
 
-if [[ $# -eq 0 ]] ; then
-    echo "rmeature_pg.sh <db> <feature-tag>"
-    exit 1
-fi
-
-if [[ $# -eq 1 ]] ; then
+if [[ $# -ne 2 ]] ; then
     echo "rmeature_pg.sh <db> <feature-tag>"
     exit 1
 fi
