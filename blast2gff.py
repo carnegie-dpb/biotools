@@ -19,13 +19,12 @@ def main():
     f = open(filename, 'rU')
 
     print "##gff-version 3"
-    print "##written by blast2gff.py from BLAST outfmt=6 file at "+datetime.datetime.now().isoformat()
     
     for line in f:
         chunks = line.split('\t')
         name = chunks[0]
         chromosome = chunks[1]
-        if chunks[8]<chunks[9]:
+        if int(chunks[8])<int(chunks[9]):
             strand = '+'
             sstart = chunks[8]
             send = chunks[9]
