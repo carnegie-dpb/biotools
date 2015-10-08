@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# This script runs two complementary workflows:
+#
+# Workflow A:
+#	1. BLAST Trinity.fasta against the AGPv3 mRNA sequences; convert output to BED6
+#	2. Remove mRNA transcripts from Trinity.fasta
+#	3. BLAST the no-mRNA FASTA against TE sequences; convert output to BED6
+# Note that this workflow never maps to the genome.
+#	Input:	Trinity.fasta
+#	Output:	Trinity.TE.no-mRNA.out,Trinity.TE.no-mRNA.bed (BED6)
+#
+# Workflow B:
+#	1. BLAST Trinity.fasta against the full AGPv3 genome; convert output to BED6
+#	2. Pull non-intersecting features from Trinity.AGPv3.bed and AGPv3.mRNA.gff
+#	3. Pull intersecting features from Trinity.AGPv3.no-mRNA.bed and TE.AGPv3.gff
+# Note that this workflow works in genome coordinates.
+#	Input:	Trinity.fasta
+#	Output: Trinity.AGPv3.TE.no-mRNA.bed
+
+echo "Step A1. BLASTing Trinity.fasta against AGPv3 mRNA sequences..."
+blastn -db /mnt/data/AGPv3/AGPv3.mRNA.fa -query Trinity.fasta -evalue 1e-20 -perc_identity 99 -outfmt 6 > Trinity.mRNA.out
+blast2bed.py Trinity.mRNA.out > Trinity.mRNA.bed
+
+echo "Step A2. Removing mRNA transcripts from Trinity.fasta..."
+/home/sam/java/SequenceRemover/run Trinity.fasta Trinity.mRNA.bed > Trinity.no-mRNA.fasta
+
+echo "Step A3. BLASTing Trinity.no-mRNA.fasta against TE sequences..."
+blastn -db /mnt/data/TE/TE.fa -query Trinity.no-mRNA.fasta -evalue 1e-20 -perc_identity 99 -outfmt 6 > Trinity.TE.no-mRNA.out
+blast2bed.py Trinity.TE.no-mRNA.out > Trinity.TE.no-mRNA.bed
+
+echo "Step B1. BLASTING Trinity.fasta against entire AGPv3 genome..."
+blastn -db /mnt/data/AGPv3/AGPv3.fa -query Trinity.fasta -evalue 1e-20 -perc_identity 99 -outfmt 6 > Trinity.AGPv3.out
+blast2bed.py Trinity.AGPv3.out > Trinity.AGPv3.bed
+
+echo "Step B2. Extracting non-mRNA-overlapping features from Trinity.AGPv3.bed..."
+bedtools intersect -v -a Trinity.AGPv3.bed -b /mnt/data/AGPv3/AGPv3.mRNA.gff > Trinity.AGPv3.no-mRNA.bed
+
+echo "Step B3. Extracting overlapping features from Trinity.AGPv3.no-mRNA.bed and TE.AGPv3.gff..."
+bedtools intersect -wo -a Trinity.AGPv3.no-mRNA.bed -b /mnt/data/TE/TE.AGPv3.gff > Trinity.AGPv3.TE.no-mRNA.bed
+

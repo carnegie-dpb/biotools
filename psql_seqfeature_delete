@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Delete a given feature:source from the given PostgreSQL GBrowse database. Requires IDENT or other implicit authentication/authorization.
+#
+# This is VASTLY faster than bp_seqfeature_delete.pl
+
+if [ "$#" -ne 2 ]; then
+    echo "psql_seqfeature_delete db feature:source"
+    exit 1
+fi
+
+echo "DELETE FROM parent2child..."
+psql $1 -c "DELETE FROM parent2child WHERE id IN (SELECT id FROM feature WHERE typeid IN (SELECT id FROM typelist WHERE tag='$2'))"
+echo "DELETE FROM attribute..."
+psql $1 -c "DELETE FROM attribute    WHERE id IN (SELECT id FROM feature WHERE typeid IN (SELECT id FROM typelist WHERE tag='$2'))"
+echo "DELETE FROM name..."
+psql $1 -c "DELETE FROM name         WHERE id IN (SELECT id FROM feature WHERE typeid IN (SELECT id FROM typelist WHERE tag='$2'))"
+echo "DELETE FROM feature..."
+psql $1 -c "DELETE FROM feature      WHERE typeid IN (SELECT id FROM typelist WHERE tag='$2')"
+echo "DELETE type..."
+psql $1 -c "DELETE FROM typelist     WHERE tag='$2'"
+

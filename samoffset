@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Offsets the ref seq relative positions with the TE-single.fa ref seq positions given TE-single.gff using SAMOffsetter.java.
+# Then, sort the resulting BAM file, plus create a BAM index with samtools.
+
+# offset the positions
+java -cp /home/sam/java/classes:/home/sam/java/lib/biojava-core-4.0.0.jar:/usr/share/java/slf4j/nop.jar:/usr/share/java/slf4j/api.jar SAMOffsetter \
+     $1.mapped.sam /mnt/data/TE/TE-single.blastn.gff > $1.mapped.offset.sam
+
+# prepend a SAM header (required for BAM index)
+echo "@SQ	SN:maizetedb	LN:5874047" | cat - $1.mapped.offset.sam > /tmp/headered.sam
+mv -f /tmp/headered.sam $1.mapped.offset.sam
+
+# convert to BAM
+samtools view -S $1.mapped.offset.sam -b > $1.mapped.offset.bam
+
+# sort
+samtools sort $1.mapped.offset.bam $1.mapped.offset.sorted
+
+# index
+samtools index $1.mapped.offset.sorted.bam

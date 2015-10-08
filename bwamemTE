@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Use bwa mem to map a read pair to indexed TE sequences (maizetedb)
+#
+# input: the prefix of the read pair (e.g. s_3)
+
+bwa mem -t4 /mnt/data/TE/TE.fa $1_1_paired-trimmed.fq.gz $1_2_paired-trimmed.fq.gz > $1.bwa.mem.sam
+samtools view -S -F4 $1.bwa.mem.sam > $1.bwa.mem.mapped.sam
+
+echo "Total maps: `wc -l $1.bwa.mem.mapped.sam`"
+echo "DTA: `grep -c DTA $1.bwa.mem.mapped.sam`"

@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Runs a series of steps to create a Trinity transcriptome for gbrowsing.
+# $1 = sample ID, like FC192_s_1.
+
+# FastaReaderHelper blows away everything past pipe, so we have to move the pipe
+echo "Merging Trinity contigs..."
+sed s/\|/_/ Trinity.fasta | sed s/\ len/\|len/ | runjava FastaMerger --thin-trinity-genes --id=$1 - > Trinity-merged.fasta
+
+echo "Indexing..."
+samtools faidx Trinity-merged.fasta
+makeblastdb -in Trinity-merged.fasta -dbtype nucl
+bwa index Trinity-merged.fasta
+
+echo "BLASTing back Trinity contigs to GFF..."
+blastn -db Trinity-merged.fasta -query Trinity.fasta -outfmt 6 -num_threads 4 -perc_identity 100 -qcov_hsp_perc 100 > Trinity.Trinity-merged.blast.out
+blast2gff.py Trinity.Trinity-merged.blast.out $1 contig Trinity-$1 > Trinity.Trinity-merged.blast.gff
+
+
