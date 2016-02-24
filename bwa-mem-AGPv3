@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Use bwa mem to map a read pair to the AGPv3 genome
+#
+# input: the prefix of the read pair (e.g. s_3)
+
+bwa mem -t2 /mnt/data/AGPv3/AGPv3.fa $1_1_paired-trimmed.fq.gz $1_2_paired-trimmed.fq.gz > $1.bwa-mem.sam
+samtools view -h -F4 $1.bwa-mem.sam > $1.bwa-mem.mapped.sam
+
+echo "Total maps: `wc -l $1.bwa-mem.mapped.sam`"
+echo "DTA: `grep -c DTA $1.bwa-mem.mapped.sam`"
+
+samtools view -h -b $1.bwa-mem.mapped.sam > $1.bwa-mem.mapped.bam
+samtools sort $1.bwa-mem.mapped.bam $1.bwa-mem.mapped.sorted
+samtools index $1.bwa-mem.mapped.sorted.bam
+
+echo "Done mapping $1"
