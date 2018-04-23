@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ "$#" -lt 3 ]; then
-  echo "Usage: $0 query.fa db.fa e-value" >&2
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 db.fa query.fa <params>" >&2
   exit 1
 fi
 
 echo -e "qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqstart\tqend\tsstart\tsend\tevalue\tbitscore"
 
-blastn -num_threads 3 -outfmt 6 -query $1 -db $2 -evalue $3  $4 $5 $6 $7 $8 $9
+blastn -num_threads 3 -outfmt 6 -db $1 -query $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
 
